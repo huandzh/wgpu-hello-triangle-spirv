@@ -6,7 +6,11 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+# window creation
 winit = "0.26.1"
+# enable spirv feature to use SpirV shaders
 wgpu = {version ="0.12.0", features = ["spirv"]}
+# logger
 env_logger = "0.9.0"
+# async excutor
 pollster = "0.2.5"

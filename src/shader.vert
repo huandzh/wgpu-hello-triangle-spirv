@@ -1,6 +1,7 @@
 #version 450
 
 // https://vulkan-tutorial.com/Drawing_a_triangle/Graphics_pipeline_basics/Shader_modules
+// LICENSE: https://creativecommons.org/publicdomain/zero/1.0/
 layout(location = 0) out vec3 fragColor;
 
 vec2 positions[3] = {

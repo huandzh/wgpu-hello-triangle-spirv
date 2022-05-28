@@ -9,7 +9,7 @@ use winit::{
 // Convert bytes to words.
 //
 // It is useful when using `include_bytes!` to get shader source
-//
+// See also: `wgpu::util::make_spirv`
 // From bevy: https://github.com/yrns/bevy/blob/71a650c885a26814f313393fb7299982ac80bb41/crates/bevy_render/src/shader/shader.rs
 // fn bytes_to_words(bytes: &[u8]) -> Vec<u32> {
 //     let mut words = Vec::new();
@@ -23,6 +23,7 @@ use winit::{
 
 async fn run(event_loop: EventLoop<()>, window: Window) {
     let size = window.inner_size();
+    // using vulkan backend
     let instance = wgpu::Instance::new(wgpu::Backends::VULKAN);
     let surface = unsafe { instance.create_surface(&window) };
     let adapter = instance
@@ -42,8 +43,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                 label: None,
                 features: wgpu::Features::empty(),
                 // Make sure we use the texture resolution limits from the adapter, so we can support images the size of the swapchain.
-                limits: wgpu::Limits::downlevel_webgl2_defaults()
-                    .using_resolution(adapter.limits()),
+                limits: wgpu::Limits::downlevel_defaults().using_resolution(adapter.limits()),
             },
             None,
         )
@@ -51,6 +51,8 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         .expect("Failed to create device");
 
     // Load the shaders from disk using macro
+    // `include_spirv` has return type of `ShaderModuleDescriptor`
+    // See also: `wgpu::util::make_spirv`
     let vert_shader = device.create_shader_module(&wgpu::include_spirv!("vert.spv"));
 
     let frag_shader = device.create_shader_module(&wgpu::include_spirv!("frag.spv"));
@@ -133,7 +135,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                             view: &view,
                             resolve_target: None,
                             ops: wgpu::Operations {
-                                // begin color / background color
+                                // begin color - background color in visual
                                 load: wgpu::LoadOp::Clear(wgpu::Color::BLACK),
                                 store: true,
                             },
@@ -159,7 +161,9 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
 fn main() {
     let event_loop = EventLoop::new();
     let window = winit::window::Window::new(&event_loop).unwrap();
+    window.set_title("wgpu - Vulkan");
     {
+        // for Vulkan validation layer logs
         env_logger::init();
         pollster::block_on(run(event_loop, window));
     }
